@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: should-i-be-trading-india
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm install && npm --prefix server install && npm --prefix client install && npm run build
+    startCommand: npm run start
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: CLIENT_ORIGINS
+        value: "*"
+      - key: SERVE_CLIENT
+        value: "1"

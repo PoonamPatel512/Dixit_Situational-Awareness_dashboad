@@ -226,3 +226,60 @@ Example from /api/dashboard?mode=swing:
 - NSE APIs can be inconsistent and may require cookie/header handling.
 - For production reliability, you can still add broker feeds later, but they are optional and not required by this build.
 - Scoring logic is intentionally centralized in server/src/services/scoringEngine.js for easy calibration.
+
+## Deploy on Render (Single Platform)
+
+This repository is now prepared for Render one-service deployment:
+
+- Backend API runs on Node/Express.
+- Frontend is built with Vite and served by Express in production.
+- API and UI are available from one Render URL.
+
+### 1) Push code to GitHub
+
+Make sure your latest branch has:
+
+- `render.yaml`
+- production static serving in `server/src/index.js`
+
+### 2) Create Render service from Blueprint (recommended)
+
+1. Open Render Dashboard.
+2. Click `New` -> `Blueprint`.
+3. Connect your GitHub repo.
+4. Render auto-detects `render.yaml` and creates the web service.
+
+### 3) Environment values used
+
+`render.yaml` already sets:
+
+- `NODE_ENV=production`
+- `HOST=0.0.0.0`
+- `CLIENT_ORIGINS=*`
+- `SERVE_CLIENT=1`
+
+`PORT` is provided automatically by Render.
+
+### 4) Build + start commands
+
+Configured in `render.yaml`:
+
+- Build: `npm install && npm --prefix server install && npm --prefix client install && npm run build`
+- Start: `npm run start`
+
+### 5) Verify after deploy
+
+After first deploy completes:
+
+- App: `https://<your-service>.onrender.com`
+- Health: `https://<your-service>.onrender.com/api/health`
+- Dashboard API: `https://<your-service>.onrender.com/api/dashboard?mode=swing`
+
+### 6) Free-tier behavior
+
+On Render free plan, service may sleep on inactivity and cold-start on first request.
+
+### 7) Optional hardening later
+
+- Replace `CLIENT_ORIGINS=*` with your exact domain.
+- Add a cron/pinger if you want fewer cold starts.

@@ -1,6 +1,8 @@
 import cors from "cors";
 import express from "express";
 import NodeCache from "node-cache";
+import path from "path";
+import { fileURLToPath } from "url";
 import { SERVER_CONFIG } from "./config.js";
 import { buildDashboardPayload } from "./services/marketService.js";
 import { getSnapshotForMode, startEodScheduler, writeEodSnapshot } from "./services/eodSnapshotService.js";
@@ -8,11 +10,19 @@ import { isMarketOpen, nowIST } from "./utils/time.js";
 
 const app = express();
 const cache = new NodeCache({ stdTTL: SERVER_CONFIG.cacheTtlSeconds, useClones: false });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const clientDistPath = path.resolve(__dirname, "../../client/dist");
+const shouldServeClient = process.env.SERVE_CLIENT === "1" || process.env.NODE_ENV === "production";
 
 app.use(
   cors({
     origin(origin, callback) {
       if (!origin) {
+        callback(null, true);
+        return;
+      }
+      if (SERVER_CONFIG.allowAllOrigins) {
         callback(null, true);
         return;
       }
@@ -126,6 +136,13 @@ app.post("/api/eod-refresh", async (_req, res) => {
     return res.status(500).json({ ok: false, error: error?.message || "failed" });
   }
 });
+
+if (shouldServeClient) {
+  app.use(express.static(clientDistPath));
+  app.get(/^(?!\/api).*/, (_req, res) => {
+    res.sendFile(path.join(clientDistPath, "index.html"));
+  });
+}
 
 app.listen(SERVER_CONFIG.port, SERVER_CONFIG.host, () => {
   console.log(`Should I Be Trading backend on ${SERVER_CONFIG.host}:${SERVER_CONFIG.port}`);

@@ -5,7 +5,8 @@ export const SERVER_CONFIG = {
   allowedOrigins: (process.env.CLIENT_ORIGINS || "http://127.0.0.1:5173,http://localhost:5173")
     .split(",")
     .map((v) => v.trim())
-    .filter(Boolean)
+    .filter(Boolean),
+  allowAllOrigins: (process.env.CLIENT_ORIGINS || "").split(",").map((v) => v.trim()).includes("*")
 };
 
 export const SYMBOLS = {
