@@ -1,12 +1,17 @@
+const clientOriginsRaw = process.env.CLIENT_ORIGINS;
+const defaultClientOrigins =
+  process.env.NODE_ENV === "production" ? "*" : "http://127.0.0.1:5173,http://localhost:5173";
+const parsedClientOrigins = (clientOriginsRaw || defaultClientOrigins)
+  .split(",")
+  .map((v) => v.trim())
+  .filter(Boolean);
+
 export const SERVER_CONFIG = {
   host: process.env.HOST || "0.0.0.0",
   port: Number(process.env.PORT || 8787),
   cacheTtlSeconds: 30,
-  allowedOrigins: (process.env.CLIENT_ORIGINS || "http://127.0.0.1:5173,http://localhost:5173")
-    .split(",")
-    .map((v) => v.trim())
-    .filter(Boolean),
-  allowAllOrigins: (process.env.CLIENT_ORIGINS || "").split(",").map((v) => v.trim()).includes("*")
+  allowedOrigins: parsedClientOrigins.filter((origin) => origin !== "*"),
+  allowAllOrigins: parsedClientOrigins.includes("*")
 };
 
 export const SYMBOLS = {
