@@ -23,6 +23,19 @@ function buildPanelRows(data) {
   const mom = data.panels.momentum;
   const macro = data.panels.macro;
 
+  const trendState = (above) => (above ? "healthy" : "risk-off");
+  const totalSectors = mom.sectors.length || 12;
+  const sectorsUp = mom.positiveSectors;
+  const sectorsRatio = totalSectors ? sectorsUp / totalSectors : 0;
+  const leader = mom.top3?.[0];
+  const laggard = mom.bottom3?.[mom.bottom3.length - 1];
+  const participationLabel =
+    mom.pctNifty500HigherHighs >= 55
+      ? "High / Broad"
+      : mom.pctNifty500HigherHighs >= 35
+        ? "Medium / Selective"
+        : "Low / Narrow";
+
   return {
     volatility: [
       {
@@ -40,10 +53,22 @@ function buildPanelRows(data) {
     ],
     trend: [
       {
-        label: "Nifty vs 20/50/200 MA",
-        value: `${trend.niftyAbove20 ? "Y" : "N"}/${trend.niftyAbove50 ? "Y" : "N"}/${trend.niftyAbove200 ? "Y" : "N"}`,
-        direction: trend.regime === "uptrend" ? "up" : trend.regime === "downtrend" ? "down" : "flat",
-        state: trend.regime === "uptrend" ? "healthy" : trend.regime === "downtrend" ? "risk-off" : "watch"
+        label: "Nifty vs 10 DMA",
+        value: trend.niftyAbove10 ? "Above" : "Below",
+        direction: trend.niftyAbove10 ? "up" : "down",
+        state: trendState(trend.niftyAbove10)
+      },
+      {
+        label: "Nifty vs 20 DMA",
+        value: trend.niftyAbove20 ? "Above" : "Below",
+        direction: trend.niftyAbove20 ? "up" : "down",
+        state: trendState(trend.niftyAbove20)
+      },
+      {
+        label: "Nifty vs 50 DMA",
+        value: trend.niftyAbove50 ? "Above" : "Below",
+        direction: trend.niftyAbove50 ? "up" : "down",
+        state: trendState(trend.niftyAbove50)
       },
       {
         label: "Bank Nifty vs 50MA",
@@ -60,24 +85,53 @@ function buildPanelRows(data) {
         state: breadth.adRatio >= 1 ? "healthy" : "risk-off"
       },
       {
-        label: "% Above 50d",
-        value: `${breadth.pctAbove50d.toFixed(0)}%`,
-        direction: directionFromNumeric(breadth.pctAbove50d - 50, 3),
-        state: breadth.pctAbove50d > 50 ? "healthy" : "watch"
+        label: "% Stocks > 10 EMA",
+        value: `${breadth.pctAbove10ema.toFixed(0)}%`,
+        direction: directionFromNumeric(breadth.pctAbove10ema - 50, 3),
+        state: breadth.pctAbove10ema > 50 ? "healthy" : "watch"
+      },
+      {
+        label: "% Stocks > 20 EMA",
+        value: `${breadth.pctAbove20ema.toFixed(0)}%`,
+        direction: directionFromNumeric(breadth.pctAbove20ema - 50, 3),
+        state: breadth.pctAbove20ema > 50 ? "healthy" : "watch"
+      },
+      {
+        label: "% Stocks > 50 EMA",
+        value: `${breadth.pctAbove50ema.toFixed(0)}%`,
+        direction: directionFromNumeric(breadth.pctAbove50ema - 50, 3),
+        state: breadth.pctAbove50ema > 50 ? "healthy" : "watch"
       }
     ],
     momentum: [
       {
-        label: "Top3-Bottom3 Spread",
-        value: `${mom.spreadTop3Bottom3.toFixed(2)}%`,
-        direction: directionFromNumeric(mom.spreadTop3Bottom3 - 1, 0.2),
-        state: mom.spreadTop3Bottom3 > 1.2 ? "healthy" : "watch"
+        label: "Sectors +",
+        value: `${sectorsUp}/${totalSectors}`,
+        direction: directionFromNumeric(sectorsRatio - 0.5, 0.08),
+        state: sectorsRatio >= 0.6 ? "healthy" : sectorsRatio >= 0.35 ? "watch" : "risk-off"
       },
       {
-        label: "% N500 Higher Highs",
-        value: `${mom.pctNifty500HigherHighs.toFixed(0)}%`,
+        label: "Leader",
+        value: leader ? `${leader.label} ${leader.changePercent.toFixed(2)}%` : "N/A",
+        direction: leader ? directionFromNumeric(leader.changePercent, 0.05) : "flat",
+        state: leader && leader.changePercent > 0 ? "healthy" : "watch"
+      },
+      {
+        label: "Laggard",
+        value: laggard ? `${laggard.label} ${laggard.changePercent.toFixed(2)}%` : "N/A",
+        direction: laggard ? directionFromNumeric(laggard.changePercent, 0.05) : "flat",
+        state: laggard && laggard.changePercent < 0 ? "risk-off" : "watch"
+      },
+      {
+        label: "Participation",
+        value: participationLabel,
         direction: directionFromNumeric(mom.pctNifty500HigherHighs - 40, 2),
-        state: mom.pctNifty500HigherHighs > 45 ? "healthy" : "watch"
+        state:
+          mom.pctNifty500HigherHighs >= 55
+            ? "healthy"
+            : mom.pctNifty500HigherHighs >= 35
+              ? "watch"
+              : "risk-off"
       }
     ],
     macro: [

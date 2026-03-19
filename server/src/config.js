@@ -41,6 +41,29 @@ export const SECTOR_DEFINITIONS = [
   { key: "niftyInfrastructure", label: "Nifty Infrastructure" }
 ];
 
+export const BREADTH_UNIVERSE = [
+  "RELIANCE.NS",
+  "TCS.NS",
+  "HDFCBANK.NS",
+  "ICICIBANK.NS",
+  "INFY.NS",
+  "ITC.NS",
+  "LT.NS",
+  "BHARTIARTL.NS",
+  "SBIN.NS",
+  "KOTAKBANK.NS",
+  "HINDUNILVR.NS",
+  "AXISBANK.NS",
+  "BAJFINANCE.NS",
+  "MARUTI.NS",
+  "SUNPHARMA.NS",
+  "TATAMOTORS.NS",
+  "ADANIENT.NS",
+  "NTPC.NS",
+  "POWERGRID.NS",
+  "WIPRO.NS"
+];
+
 export const SCORE_WEIGHTS = {
   volatility: 0.25,
   momentum: 0.25,

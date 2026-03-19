@@ -11,6 +11,21 @@ export function sma(values, period) {
   return total / period;
 }
 
+export function ema(values, period) {
+  if (!Array.isArray(values) || values.length < period || period <= 0) {
+    return null;
+  }
+
+  const smoothing = 2 / (period + 1);
+  let current = sma(values.slice(0, period), period);
+
+  for (let i = period; i < values.length; i += 1) {
+    current = values[i] * smoothing + current * (1 - smoothing);
+  }
+
+  return current;
+}
+
 export function slope(values, points = 5) {
   if (!Array.isArray(values) || values.length < points) {
     return 0;

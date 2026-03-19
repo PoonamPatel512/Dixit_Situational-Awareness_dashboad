@@ -1,6 +1,6 @@
 {
   "sessionDate": "2026-03-19",
-  "savedAtIST": "2026-03-19 16:32:49",
+  "savedAtIST": "2026-03-19 19:55:01",
   "modes": {
     "swing": {
       "meta": {
@@ -8,13 +8,13 @@
         "mode": "swing",
         "modeLabel": "Swing Trading",
         "marketOpen": false,
-        "asOfIST": "2026-03-19 16:32:49",
+        "asOfIST": "2026-03-19 19:55:01",
         "status": "LIVE",
-        "dataFreshnessNote": "Latest available NSE/Yahoo data with resilient fallbacks",
+        "dataFreshnessNote": "Fallback-heavy snapshot (upstream blocked); verify connectivity",
         "quoteSourceMix": {
           "nse": 15,
           "yahoo": 0,
-          "staticFallback": 1
+          "staticFallback": 21
         }
       },
       "decision": {
@@ -28,7 +28,7 @@
         "volatility": 40,
         "momentum": 21,
         "trend": 0,
-        "breadth": 0,
+        "breadth": 0.1999999999999993,
         "macroLiquidity": 35
       },
       "weights": {
@@ -73,7 +73,7 @@
           "price": 83.1,
           "changePercent": 0.06,
           "symbol": "USDINR=X",
-          "timestamp": "2026-03-19T11:02:17.355Z"
+          "timestamp": "2026-03-19T14:24:29.962Z"
         },
         "gsec10y": {
           "symbol": "IN10Y",
@@ -167,10 +167,12 @@
         "trend": {
           "niftyPrice": 23002.15,
           "bankNiftyPrice": 53451,
+          "ma10": 23716.71015625,
           "ma20": 24480.0076171875,
           "ma50": 25162.49109375,
           "ma200": 25290.222373046876,
           "bank50": 59113.326171875,
+          "niftyAbove10": false,
           "niftyAbove20": false,
           "niftyAbove50": false,
           "niftyAbove200": false,
@@ -183,12 +185,17 @@
           "advances": 1,
           "declines": 49,
           "adRatio": 0.02040816326530612,
+          "pctAbove10ema": 25,
+          "pctAbove20ema": 20,
+          "pctAbove50ema": 15,
+          "emaUniverseCount": 0,
           "pctAbove20d": 20,
           "pctAbove50d": 15,
           "pctAbove200d": 10,
           "newHighsVsLows": -38,
           "mcclellanEquivalent": -96,
-          "source": "NSE"
+          "source": "NSE",
+          "emaSource": "India large-cap universe proxy"
         },
         "momentum": {
           "sectors": [
@@ -316,8 +323,8 @@
           "usdInr": 83.1,
           "usdInrTrend": "up",
           "rbiStance": "neutral",
-          "fiiNetCr": -2714.35,
-          "diiNetCr": 3253.03,
+          "fiiNetCr": -7558.19,
+          "diiNetCr": 3863.96,
           "fiiSource": "NSE"
         }
       },
@@ -340,13 +347,13 @@
         "mode": "positional",
         "modeLabel": "Positional",
         "marketOpen": false,
-        "asOfIST": "2026-03-19 16:32:49",
+        "asOfIST": "2026-03-19 19:55:01",
         "status": "LIVE",
-        "dataFreshnessNote": "Latest available NSE/Yahoo data with resilient fallbacks",
+        "dataFreshnessNote": "Fallback-heavy snapshot (upstream blocked); verify connectivity",
         "quoteSourceMix": {
           "nse": 15,
           "yahoo": 0,
-          "staticFallback": 1
+          "staticFallback": 21
         }
       },
       "decision": {
@@ -360,7 +367,7 @@
         "volatility": 40,
         "momentum": 21,
         "trend": 0,
-        "breadth": 0,
+        "breadth": 0.1999999999999993,
         "macroLiquidity": 35
       },
       "weights": {
@@ -405,7 +412,7 @@
           "price": 83.1,
           "changePercent": 0.06,
           "symbol": "USDINR=X",
-          "timestamp": "2026-03-19T11:02:17.355Z"
+          "timestamp": "2026-03-19T14:24:29.962Z"
         },
         "gsec10y": {
           "symbol": "IN10Y",
@@ -499,10 +506,12 @@
         "trend": {
           "niftyPrice": 23002.15,
           "bankNiftyPrice": 53451,
+          "ma10": 23716.71015625,
           "ma20": 25162.49109375,
           "ma50": 25561.533125,
           "ma200": 25290.222373046876,
           "bank50": 59113.326171875,
+          "niftyAbove10": false,
           "niftyAbove20": false,
           "niftyAbove50": false,
           "niftyAbove200": false,
@@ -515,12 +524,17 @@
           "advances": 1,
           "declines": 49,
           "adRatio": 0.02040816326530612,
+          "pctAbove10ema": 25,
+          "pctAbove20ema": 20,
+          "pctAbove50ema": 15,
+          "emaUniverseCount": 0,
           "pctAbove20d": 20,
           "pctAbove50d": 15,
           "pctAbove200d": 10,
           "newHighsVsLows": -38,
           "mcclellanEquivalent": -96,
-          "source": "NSE"
+          "source": "NSE",
+          "emaSource": "India large-cap universe proxy"
         },
         "momentum": {
           "sectors": [
@@ -648,8 +662,8 @@
           "usdInr": 83.1,
           "usdInrTrend": "up",
           "rbiStance": "neutral",
-          "fiiNetCr": -2714.35,
-          "diiNetCr": 3253.03,
+          "fiiNetCr": -7558.19,
+          "diiNetCr": 3863.96,
           "fiiSource": "NSE"
         }
       },

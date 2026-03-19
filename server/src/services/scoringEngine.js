@@ -19,9 +19,10 @@ function scoreVolatility(vol) {
 function scoreTrend(trend, mode) {
   let score = 0;
 
+  if (trend.niftyAbove10) score += 18;
   if (trend.niftyAbove20) score += 20;
   if (trend.niftyAbove50) score += 20;
-  if (trend.niftyAbove200) score += 20;
+  if (trend.niftyAbove200) score += 12;
   if (trend.bankNiftyAbove50) score += 20;
 
   if (trend.regime === "uptrend") score += 15;
@@ -39,9 +40,13 @@ function scoreTrend(trend, mode) {
 function scoreBreadth(breadth) {
   let score = 0;
 
-  score += Math.min(25, breadth.pctAbove20d * 0.35);
-  score += Math.min(25, breadth.pctAbove50d * 0.35);
-  score += Math.min(20, breadth.pctAbove200d * 0.25);
+  const pctAbove10ema = breadth.pctAbove10ema ?? breadth.pctAbove20d ?? 50;
+  const pctAbove20ema = breadth.pctAbove20ema ?? breadth.pctAbove20d ?? 50;
+  const pctAbove50ema = breadth.pctAbove50ema ?? breadth.pctAbove50d ?? 50;
+
+  score += Math.min(24, pctAbove10ema * 0.32);
+  score += Math.min(24, pctAbove20ema * 0.34);
+  score += Math.min(22, pctAbove50ema * 0.36);
 
   if (breadth.adRatio >= 1.3) score += 15;
   else if (breadth.adRatio >= 1) score += 10;

@@ -1,9 +1,9 @@
-import { MODE_PRESETS, SECTOR_DEFINITIONS, SYMBOLS } from "../config.js";
+import { BREADTH_UNIVERSE, MODE_PRESETS, SECTOR_DEFINITIONS, SYMBOLS } from "../config.js";
 import { fetchAdvanceDecline, fetchAllIndicesSnapshot, fetchFiiDiiFlows, fetchOptionPCR } from "../providers/nseProvider.js";
 import { fetchDailySeries, fetchQuotes } from "../providers/yahooProvider.js";
 import { buildMacroAlerts } from "./calendarService.js";
 import { buildSummary, runScoringEngine } from "./scoringEngine.js";
-import { directionFromNumber, percentileRank, rsi, slope, sma } from "../utils/indicators.js";
+import { directionFromNumber, ema, percentileRank, rsi, slope, sma } from "../utils/indicators.js";
 import { isMarketOpen, nowIST } from "../utils/time.js";
 
 const DEFAULTS = {
@@ -132,16 +132,19 @@ function inferRbiStance(gsecTrend, inflationAlertOn) {
 
 export async function buildDashboardPayload(mode = "swing") {
   const modePreset = MODE_PRESETS[mode] || MODE_PRESETS.swing;
+  const sectorSymbols = SECTOR_DEFINITIONS.map((s) => SYMBOLS[s.key]).filter(Boolean);
+  const breadthUniverseSymbols = BREADTH_UNIVERSE;
 
   const symbolList = [
     SYMBOLS.nifty50,
     SYMBOLS.bankNifty,
     SYMBOLS.indiaVix,
     SYMBOLS.usdInr,
-    ...SECTOR_DEFINITIONS.map((s) => SYMBOLS[s.key]).filter(Boolean)
+    ...sectorSymbols,
+    ...breadthUniverseSymbols
   ];
 
-  const [quotesMap, niftySeries, bankSeries, vixSeries, usdInrSeries, pcrData, adData, fiiDii, nseIndices] = await Promise.all([
+  const [quotesMap, niftySeries, bankSeries, vixSeries, usdInrSeries, pcrData, adData, fiiDii, nseIndices, breadthSeriesList] = await Promise.all([
     fetchQuotes(symbolList),
     fetchDailySeries(SYMBOLS.nifty50, "1y"),
     fetchDailySeries(SYMBOLS.bankNifty, "1y"),
@@ -150,8 +153,13 @@ export async function buildDashboardPayload(mode = "swing") {
     fetchOptionPCR(),
     fetchAdvanceDecline(),
     fetchFiiDiiFlows(),
-    fetchAllIndicesSnapshot()
+    fetchAllIndicesSnapshot(),
+    Promise.all(breadthUniverseSymbols.map((symbol) => fetchDailySeries(symbol, "1y")))
   ]);
+
+  const breadthSeriesBySymbol = new Map(
+    breadthUniverseSymbols.map((symbol, index) => [symbol, breadthSeriesList[index] || []])
+  );
 
   const mergedQuotes = new Map();
 
@@ -195,15 +203,18 @@ export async function buildDashboardPayload(mode = "swing") {
   const ma20 = sma(niftyClose, modePreset.lookbackMA[0]);
   const ma50 = sma(niftyClose, modePreset.lookbackMA[1]);
   const ma200 = sma(niftyClose, modePreset.lookbackMA[2]);
+  const ma10 = sma(niftyClose, 10);
   const bank50 = sma(bankClose, 50);
 
   const trend = {
     niftyPrice,
     bankNiftyPrice: bankPrice,
+    ma10,
     ma20,
     ma50,
     ma200,
     bank50,
+    niftyAbove10: niftyPrice > ma10,
     niftyAbove20: niftyPrice > ma20,
     niftyAbove50: niftyPrice > ma50,
     niftyAbove200: niftyPrice > ma200,
@@ -248,16 +259,51 @@ export async function buildDashboardPayload(mode = "swing") {
 
   const breadthProxy = Math.round((positiveSectors / sectorPerformance.length) * 100);
 
+  const breadthEmaSnapshot = breadthUniverseSymbols.map((symbol) => {
+    const quote = mergedQuotes.get(symbol);
+    const latestPrice = safeNumber(quote?.price, null);
+    const closes = (breadthSeriesBySymbol.get(symbol) || []).map((p) => p.close).filter((v) => Number.isFinite(v));
+
+    return {
+      symbol,
+      latestPrice,
+      ema10: ema(closes, 10),
+      ema20: ema(closes, 20),
+      ema50: ema(closes, 50)
+    };
+  });
+
+  const validEmaRows = breadthEmaSnapshot.filter((row) => Number.isFinite(row.latestPrice));
+  const validUniverseCount = validEmaRows.length;
+
+  const pctAboveEma = (key, fallback) => {
+    const rowsWithEma = validEmaRows.filter((row) => Number.isFinite(row[key]));
+    if (!rowsWithEma.length) {
+      return fallback;
+    }
+    const above = rowsWithEma.filter((row) => row.latestPrice > row[key]).length;
+    return Math.round((above / rowsWithEma.length) * 100);
+  };
+
+  const pctAbove10ema = pctAboveEma("ema10", Math.max(25, Math.min(85, breadthProxy + 8)));
+  const pctAbove20ema = pctAboveEma("ema20", Math.max(20, Math.min(80, breadthProxy + 4)));
+  const pctAbove50ema = pctAboveEma("ema50", Math.max(15, Math.min(75, breadthProxy)));
+
   const breadth = {
     advances,
     declines,
     adRatio,
-    pctAbove20d: Math.max(20, Math.min(80, breadthProxy + 6)),
-    pctAbove50d: Math.max(15, Math.min(78, breadthProxy)),
-    pctAbove200d: Math.max(10, Math.min(72, breadthProxy - 8)),
+    pctAbove10ema,
+    pctAbove20ema,
+    pctAbove50ema,
+    emaUniverseCount: validUniverseCount,
+    pctAbove20d: pctAbove20ema,
+    pctAbove50d: pctAbove50ema,
+    pctAbove200d: Math.max(10, Math.min(72, pctAbove50ema - 10)),
     newHighsVsLows: Math.round((advances - declines) * 0.8),
     mcclellanEquivalent: Number(((advances - declines) / (advances + declines || 1) * 100).toFixed(1)),
-    source: adData?.source ?? "Proxy"
+    source: adData?.source ?? "Proxy",
+    emaSource: "India large-cap universe proxy"
   };
 
   const concentration = top3.reduce((acc, s) => acc + Math.max(s.changePercent, 0), 0);
