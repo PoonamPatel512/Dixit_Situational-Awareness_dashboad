@@ -1,6 +1,7 @@
 import cors from "cors";
 import express from "express";
 import NodeCache from "node-cache";
+import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { SERVER_CONFIG } from "./config.js";
@@ -14,6 +15,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const clientDistPath = path.resolve(__dirname, "../../client/dist");
 const shouldServeClient = process.env.SERVE_CLIENT === "1" || process.env.NODE_ENV === "production";
+const hasClientBuild = fs.existsSync(path.join(clientDistPath, "index.html"));
 
 app.use(
   cors({
@@ -137,11 +139,13 @@ app.post("/api/eod-refresh", async (_req, res) => {
   }
 });
 
-if (shouldServeClient) {
+if (shouldServeClient && hasClientBuild) {
   app.use(express.static(clientDistPath));
   app.get(/^(?!\/api).*/, (_req, res) => {
     res.sendFile(path.join(clientDistPath, "index.html"));
   });
+} else if (shouldServeClient) {
+  console.warn(`Client build not found at ${clientDistPath}. Serving API routes only.`);
 }
 
 app.listen(SERVER_CONFIG.port, SERVER_CONFIG.host, () => {
