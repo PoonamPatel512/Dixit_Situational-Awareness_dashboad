@@ -397,6 +397,7 @@ export async function buildDashboardPayload(mode = "swing") {
     decision: scored.decision,
     marketQualityScore: scored.marketQualityScore,
     executionWindowScore: scored.executionWindowScore,
+    executionWindow: scored.executionWindow,
     summary,
     categoryScores: scored.categoryScores,
     weights: {

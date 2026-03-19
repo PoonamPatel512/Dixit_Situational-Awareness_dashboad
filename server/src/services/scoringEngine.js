@@ -131,6 +131,79 @@ function computeExecutionWindow(data) {
   return clamp(score);
 }
 
+function verdictFromBoolean(ok) {
+  return ok ? "Yes" : "No";
+}
+
+function convictionFromScore(score) {
+  if (score >= 75) return "High conviction";
+  if (score >= 60) return "Moderate conviction";
+  return "Low conviction";
+}
+
+function buildExecutionWindow(data, score) {
+  const top3Average =
+    data.momentum.top3?.length > 0
+      ? data.momentum.top3.reduce((acc, sector) => acc + (Number(sector.changePercent) || 0), 0) /
+        data.momentum.top3.length
+      : 0;
+
+  const checks = [
+    {
+      key: "breakouts",
+      label: "Breakouts working?",
+      ok:
+        data.trend.niftyAbove20 &&
+        data.trend.niftyAbove50 &&
+        data.breadth.pctAbove20ema >= 50 &&
+        data.momentum.spreadTop3Bottom3 > 1,
+      passCue: "Holding",
+      failCue: "Failing"
+    },
+    {
+      key: "leaders",
+      label: "Leaders holding?",
+      ok: top3Average > 0.25 && data.momentum.leadershipConcentration <= 0.58,
+      passCue: "Leadership stable",
+      failCue: "Leaders fading"
+    },
+    {
+      key: "pullbacks",
+      label: "Pullbacks bought?",
+      ok: data.breadth.adRatio >= 1 && data.breadth.pctAbove10ema >= 52 && data.volatility.vix5dSlope <= 1.2,
+      passCue: "Support present",
+      failCue: "No dip demand"
+    },
+    {
+      key: "followThrough",
+      label: "Follow-through?",
+      ok:
+        data.momentum.spreadTop3Bottom3 > 1.2 &&
+        data.volatility.pcr >= 0.85 &&
+        data.volatility.pcr <= 1.3 &&
+        (data.macro.fiiNetCr === null || data.macro.fiiNetCr >= -150),
+      passCue: "Trend extension",
+      failCue: "Low conviction"
+    }
+  ].map((check) => ({
+    key: check.key,
+    label: check.label,
+    verdict: verdictFromBoolean(check.ok),
+    cue: check.ok ? check.passCue : check.failCue,
+    state: check.ok ? "healthy" : "risk-off"
+  }));
+
+  const failedChecks = checks.filter((check) => check.verdict === "No").length;
+
+  return {
+    score: Number(score.toFixed(1)),
+    scoreLabel: String(Math.round(score)),
+    status: failedChecks >= 3 ? "Fragile" : score >= 75 ? "Strong" : score >= 60 ? "Constructive" : "Fragile",
+    conviction: convictionFromScore(score),
+    checks
+  };
+}
+
 export function runScoringEngine(data, modePreset) {
   const categoryScores = {
     volatility: scoreVolatility(data.volatility),
@@ -146,11 +219,13 @@ export function runScoringEngine(data, modePreset) {
 
   const decision = computeDecision(marketQualityScore);
   const executionWindowScore = computeExecutionWindow(data);
+  const executionWindow = buildExecutionWindow(data, executionWindowScore);
 
   return {
     categoryScores,
     marketQualityScore: Number(marketQualityScore.toFixed(1)),
     executionWindowScore: Number(executionWindowScore.toFixed(1)),
+    executionWindow,
     decision
   };
 }

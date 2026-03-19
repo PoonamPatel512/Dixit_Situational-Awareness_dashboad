@@ -289,7 +289,7 @@ export default function App() {
 
             <SectorHeatmap sectors={data.panels.momentum.sectors} />
             <ScoreBreakdown categoryScores={data.categoryScores} weights={data.weights} />
-            <ExecutionPanel score={data.executionWindowScore} />
+            <ExecutionPanel score={data.executionWindowScore} executionWindow={data.executionWindow} />
           </>
         )}
       </main>

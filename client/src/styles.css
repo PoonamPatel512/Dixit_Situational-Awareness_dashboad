@@ -425,8 +425,9 @@ h1 {
 }
 
 .execution-panel .exec-score {
-  font-size: 42px;
-  margin-bottom: 6px;
+  font-size: 32px;
+  line-height: 1;
+  color: var(--red);
 }
 
 .exec-state {
@@ -452,13 +453,79 @@ h1 {
   border-color: var(--red);
 }
 
-.execution-panel ul {
+.exec-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.exec-header-row h3 {
   margin: 0;
-  padding-left: 18px;
-  color: var(--muted);
+}
+
+.exec-header-rule {
+  width: 108px;
+  height: 4px;
+  margin-bottom: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--red), #b6294a);
+}
+
+.exec-checklist {
   display: grid;
-  gap: 6px;
+  gap: 8px;
+}
+
+.exec-check-row {
+  display: grid;
+  grid-template-columns: 12px 1.7fr auto auto;
+  gap: 8px;
+  align-items: center;
   font-size: 12px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dot.healthy {
+  background: var(--green);
+}
+
+.dot.watch {
+  background: var(--amber);
+}
+
+.dot.risk-off {
+  background: var(--red);
+}
+
+.check-label {
+  color: #95b9d9;
+}
+
+.check-verdict,
+.check-cue {
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.check-verdict.healthy,
+.check-cue.healthy {
+  color: var(--green);
+}
+
+.check-verdict.watch,
+.check-cue.watch {
+  color: var(--amber);
+}
+
+.check-verdict.risk-off,
+.check-cue.risk-off {
+  color: var(--red);
 }
 
 .alert-strip {
