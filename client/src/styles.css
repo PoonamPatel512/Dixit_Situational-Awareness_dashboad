@@ -405,7 +405,10 @@ h1 {
   font-size: 12px;
 }
 
-.score-panel,
+.score-panel {
+  grid-column: span 6;
+}
+
 .execution-panel {
   grid-column: span 3;
 }
@@ -417,11 +420,126 @@ h1 {
 
 .score-row {
   display: grid;
-  grid-template-columns: 1.2fr auto auto auto;
+  grid-template-columns: 110px 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  font-size: 12px;
+  padding: 4px 0;
+}
+
+.score-label {
+  color: #98bfdc;
+  letter-spacing: 0.03em;
+}
+
+.score-bar-track {
+  height: 14px;
+  border: 1px solid #1a3b60;
+  background: #0b1a32;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.score-bar {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.score-bar.good {
+  background: linear-gradient(90deg, #0d8b52, #23e18b);
+}
+
+.score-bar.watch {
+  background: linear-gradient(90deg, #c07b00, #ffbf4d);
+}
+
+.score-bar.risk {
+  background: linear-gradient(90deg, #8e213e, #ff4f67);
+}
+
+.score-value {
+  min-width: 24px;
+  text-align: right;
+}
+
+.score-value.good {
+  color: var(--green);
+}
+
+.score-value.watch {
+  color: var(--amber);
+}
+
+.score-value.risk {
+  color: var(--red);
+}
+
+.score-weight {
+  min-width: 42px;
+  text-align: right;
+  color: #587ea2;
+  font-weight: 700;
+}
+
+.score-total-row {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #1b3d61;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.score-total-row span {
+  color: #809fbc;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+}
+
+.score-total-row strong {
+  color: var(--red);
+  font-size: 34px;
+  line-height: 1;
+}
+
+.score-legend {
+  margin-top: 8px;
+  display: grid;
+  gap: 4px;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
   gap: 8px;
   font-size: 12px;
-  padding: 7px;
-  border: 1px solid #1b3d61;
+  color: var(--muted);
+}
+
+.legend-row .dot {
+  width: 9px;
+  height: 9px;
+}
+
+.legend-row .dot.good {
+  background: var(--green);
+}
+
+.legend-row .dot.watch {
+  background: var(--amber);
+}
+
+.legend-row .dot.risk {
+  background: var(--red);
+}
+
+.score-decision {
+  margin-top: 8px;
+  color: #6d95ba;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .execution-panel .exec-score {

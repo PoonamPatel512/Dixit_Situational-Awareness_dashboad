@@ -288,7 +288,12 @@ export default function App() {
             <MetricPanel title="Macro / Liquidity" rows={panelRows.macro} />
 
             <SectorHeatmap sectors={data.panels.momentum.sectors} />
-            <ScoreBreakdown categoryScores={data.categoryScores} weights={data.weights} />
+            <ScoreBreakdown
+              categoryScores={data.categoryScores}
+              weights={data.weights}
+              totalScore={data.marketQualityScore}
+              decision={data.decision.value}
+            />
             <ExecutionPanel score={data.executionWindowScore} executionWindow={data.executionWindow} />
           </>
         )}
